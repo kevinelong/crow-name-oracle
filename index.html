@@ -104,6 +104,13 @@
   .mode-btn.active small{color:var(--bone-dim)}
   .mode-note{text-align:center;font-style:italic;color:var(--mist);font-size:14px;min-height:20px;margin-bottom:8px}
 
+  /* intensity dial */
+  .dial{display:flex;align-items:center;justify-content:center;gap:14px;margin:2px auto 0}
+  .dial-label{font-family:'Cinzel',serif;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dim)}
+  .dial-track{display:inline-flex;background:var(--panel);border:1px solid var(--panel-edge);border-radius:999px;padding:3px}
+  .dial-btn{font-family:'Cinzel',serif;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--bone-dim);background:transparent;border:none;border-radius:999px;padding:7px 18px 5px;cursor:pointer;transition:all .2s}
+  .dial-btn.active{background:linear-gradient(180deg,var(--gold-soft),var(--gold-dim));color:#1a140a;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+
   /* ---------- form ---------- */
   .scroll{
     background:
@@ -249,6 +256,15 @@
   </div>
   <p class="mode-note" id="modeNote">Calls upon the Oracle (AI); should it fall silent, the Scribe answers.</p>
 
+  <!-- intensity dial -->
+  <div class="dial" id="dial">
+    <span class="dial-label">Crow intensity</span>
+    <div class="dial-track">
+      <button class="dial-btn active" data-int="light">Light</button>
+      <button class="dial-btn" data-int="heavy">Heavy</button>
+    </div>
+  </div>
+
   <!-- form -->
   <div class="scroll">
     <div class="field">
@@ -300,6 +316,7 @@
 
   // ---------- state ----------
   var mode = "auto";
+  var intensity = "light";  // "light" | "heavy" crow flourish
   var roster = [];          // {name, title}
   var current = null;       // last divined {name, title, source}
   var lastInputs = null;    // remember inputs for AI reroll variety
@@ -312,23 +329,61 @@
   };
 
   // ---------- template engine (the Scribe) ----------
+  // 1) corvid byname appended to the person's name
+  var BYNAME = ["Blackwing","Brightthief","Ashfeather","Quickbeak","Nightcaller",
+                "Tatterwing","Glintseeker","Shadowmolt","Stormpinion","Sootmantle",
+                "Gravewing","Cinderbeak","Hollowcaw","Bramblewing","Frostfeather","Ravenkin"];
+  // 2) rookery / murder framing for the food slot
   var CLAN = [
-    "of the {f} clan",
-    "of House {f}",
-    "heir to the {f} feast",
-    "sworn to the {f} table",
-    "born under the banner of {f}",
-    "last of the {f} line"
+    "of the {f} rookery",
+    "of the {f}-hoarding murder",
+    "sworn to the {f} roost",
+    "born in the {f} nest",
+    "last crow of the {f} line",
+    "perched above the {f} feast"
   ];
-  var HOBBY_TITLE = ["rider","keeper","weaver","hunter","wanderer","seeker","tamer","herald",
-                     "warden","chaser","singer","dreamer","master","charmer","scribe"];
-  var QUIRK_TITLE = ["conqueror","scourge","whisperer","defier","breaker","guardian","bane",
-                     "vanquisher","sovereign","keeper","tamer","oracle"];
-  var STRUCTURES = [
-    "{name} {clan}, {ht} of {hobby}, {qt} of {quirk}",
-    "{name}, {ht} of {hobby}, {qt} of {quirk}, {clan}",
-    "{name} {clan}, {qt} of {quirk}, {ht} of {hobby}",
-    "{name} the {qt} of {quirk}, {ht} of {hobby}, {clan}"
+  // 3) flight & crow deeds (hobby slot) — full phrases, varied prepositions
+  var HOBBY_DEED = [
+    "circler of {h}",
+    "glider over {h}",
+    "who swoops upon {h}",
+    "haunter of {h}",
+    "watcher over {h}",
+    "caller-across the {h}",
+    "scavenger of {h}",
+    "rider of {h} on tar-black wing",
+    "shadow cast over {h}"
+  ];
+  // crow conquests (quirk slot)
+  var QUIRK_DEED = [
+    "thief of {q}",
+    "hoarder of {q}",
+    "omen of {q}",
+    "trickster of {q}",
+    "mimic of {q}",
+    "plunderer of {q}",
+    "keeper of {q}, brightest of trinkets",
+    "who covets {q}"
+  ];
+  // corvid closers for HEAVY intensity (the face-remembering lore)
+  var CORVID_CLOSE = [
+    "remembers every face at this gathering",
+    "forgets no face once seen",
+    "leaves bright gifts for the kind",
+    "answers only to the caw",
+    "knows your name before you give it",
+    "trades shiny secrets for shinier ones",
+    "marks each new friend with a single glance"
+  ];
+  var LIGHT_STRUCT = [
+    "{name} {by} {clan}, {hd}, {qd}",
+    "{name} {by}, {hd}, {qd}, {clan}",
+    "{name} {by} {clan}, {qd}, {hd}"
+  ];
+  var HEAVY_STRUCT = [
+    "{name} {by} {clan}, {hd}, {qd} — and {face}",
+    "{name} {by}, {hd}, {qd}, {clan}, who {face}",
+    "{name} {by} {clan}, who {face}; {hd}, {qd}"
   ];
 
   function rng(){ // seedable for rerolls
@@ -347,30 +402,42 @@
     rerollSeed = (Date.now() + (rerollSeed||1)) % 233280; // fresh each call
     var name  = tidy(inp.name) || "The Unnamed";
     var food  = tidy(pickItem(inp.food,  "midnight crumbs"));
-    var hobby = tidy(pickItem(inp.hobby, "wandering"));
+    var hobby = tidy(pickItem(inp.hobby, "wind and rooftops"));
     var quirk = tidy(pickItem(inp.quirk, "secrets best kept"));
-    var clan = pick(CLAN).replace("{f}", food);
-    var s = pick(STRUCTURES)
+    var by    = pick(BYNAME);
+    var clan  = pick(CLAN).replace("{f}", food);
+    var hd    = pick(HOBBY_DEED).replace("{h}", hobby);
+    var qd    = pick(QUIRK_DEED).replace("{q}", quirk);
+    var struct = (intensity === "heavy") ? pick(HEAVY_STRUCT) : pick(LIGHT_STRUCT);
+    var s = struct
       .replace("{name}", name)
+      .replace("{by}", by)
       .replace("{clan}", clan)
-      .replace("{ht}", pick(HOBBY_TITLE)).replace("{hobby}", hobby)
-      .replace("{qt}", pick(QUIRK_TITLE)).replace("{quirk}", quirk);
-    return { name:name, title:s, source:"scribe" };
+      .replace("{hd}", hd)
+      .replace("{qd}", qd)
+      .replace("{face}", pick(CORVID_CLOSE));
+    return { name:name, byname:by, title:s, source:"scribe" };
   }
 
   // ---------- oracle engine (the AI) ----------
   function buildPrompt(inp){
-    return "You are a master herald who bestows grand, mock-heroic 'crow names' for a party — "+
-      "epic titles in the spirit of \"Nina of the rice pudding clan, rider of trains, conqueror of poodle hair.\"\n\n"+
+    var heavy = (intensity === "heavy");
+    var clauses = heavy
+      ? "Write 4 clauses. The last must be a corvid flourish drawn from crow lore — e.g. that crows remember every face, leave bright gifts, hoard shiny things, or know a name before it's given."
+      : "Write 3 tight clauses. Keep it punchy.";
+    return "You are a master herald of a murder of crows, bestowing grand, mock-heroic 'crow names' for a party. "+
+      "Every guest IS a crow. The vibe: \"Nina Brightthief of the rice-pudding rookery, who rides the trains on tar-black wing, hoarder of poodle hair.\"\n\n"+
       "Forge ONE crow name from these details:\n"+
       "- Name: "+(tidy(inp.name)||"(unknown)")+"\n"+
       "- Hobbies: "+(tidy(inp.hobby)||"(none given)")+"\n"+
       "- Favorite foods: "+(tidy(inp.food)||"(none given)")+"\n"+
       "- The unexpected: "+(tidy(inp.quirk)||"(none given)")+"\n\n"+
-      "Rules: Begin with the person's name. Weave in a food 'clan/house', a hobby reframed as a heroic deed, "+
-      "and the unexpected detail as a grand conquest or strange mastery. Keep it to one line, 3 clauses, witty and "+
-      "a little absurd — the kind of thing that sparks an introduction. Vary your phrasing (avoid always using "+
-      "'rider of' or 'conqueror of'). Variation seed: "+(rerollSeed||1)+".\n\n"+
+      "Rules:\n"+
+      "1. Begin with the person's name, then give them a corvid byname (e.g. Blackwing, Brightthief, Ashfeather, Nightcaller, Quickbeak) — invent a fitting one.\n"+
+      "2. Frame the food as a crow collective: a 'rookery', 'murder', 'roost', or 'nest' — never 'clan' or 'house'.\n"+
+      "3. Reframe a hobby as a deed of flight or crow-cunning (circler/glider/swoops upon/scavenger of/rider on tar-black wing/watcher over).\n"+
+      "4. Cast the unexpected detail as a crow's plunder or strange mastery (thief of / hoarder of / omen of / trickster of / mimic of).\n"+
+      "5. "+clauses+" Witty, a little absurd, the kind of thing that sparks an introduction. Vary your verbs. Variation seed: "+(rerollSeed||1)+".\n\n"+
       "Respond with ONLY the crow name itself — no quotes, no preamble, no explanation.";
   }
 
@@ -399,10 +466,13 @@
 
   // ---------- name splitting for display ----------
   function renderTitle(name, title){
-    // bold the leading name if the title starts with it
+    // bold the leading name (and an immediately-following corvid byname) when present
     if(name && title.toLowerCase().indexOf(name.toLowerCase())===0){
       var rest = title.slice(name.length);
-      return '<span class="nm">'+esc(name)+'</span>'+esc(rest);
+      var m = rest.match(/^(\s+[A-Z][A-Za-z'\u2019-]+)/); // capture " Brightthief"
+      var lead = name + (m ? m[1] : "");
+      var tail = title.slice(lead.length);
+      return '<span class="nm">'+esc(lead)+'</span>'+esc(tail);
     }
     return esc(title);
   }
@@ -537,6 +607,13 @@
     };
   });
   document.getElementById("summon").onclick=function(){ run(false); };
+  Array.prototype.forEach.call(document.querySelectorAll(".dial-btn"),function(btn){
+    btn.onclick=function(){
+      document.querySelectorAll(".dial-btn").forEach(function(b){b.classList.remove("active");});
+      btn.classList.add("active");
+      intensity=btn.dataset.int;
+    };
+  });
   document.querySelectorAll("input").forEach(function(i){
     i.addEventListener("keydown",function(e){ if(e.key==="Enter") run(false); });
   });
