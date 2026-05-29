@@ -1,0 +1,30 @@
+#!/sbin/openrc-run
+# Crow Name Oracle backend — OpenRC service (Alpine: /etc/init.d/crow-oracle)
+#
+# This is the Alpine/OpenRC equivalent of server/crow-oracle.service (which is
+# a systemd unit and does NOT run on Alpine). Install with:
+#
+#   doas cp deploy/crow-oracle.openrc /etc/init.d/crow-oracle
+#   doas chmod +x /etc/init.d/crow-oracle
+#   doas touch /var/log/crow-oracle.log && doas chown kevin:kevin /var/log/crow-oracle.log
+#   doas rc-service crow-oracle start
+#   doas rc-update add crow-oracle default      # <-- REQUIRED so it survives reboot
+#
+# Adjust `command_user` and `directory` to match where the repo lives.
+
+name="crow-oracle"
+description="Crow Name Oracle backend (Anthropic proxy + roster)"
+
+command="/usr/bin/node"
+command_args="server.js"
+command_user="kevin:kevin"
+directory="/home/kevin/crow-name-oracle/site/server"
+pidfile="/run/crow-oracle.pid"
+command_background=true
+output_log="/var/log/crow-oracle.log"
+error_log="/var/log/crow-oracle.log"
+
+depend() {
+    need net
+    after firewall
+}

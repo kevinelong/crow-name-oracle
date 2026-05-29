@@ -1,5 +1,10 @@
 # Deployment Architecture
 
+> **Deploying for real?** This document describes the idealized topology
+> (Ubuntu + Caddy + systemd + Cloudflare). The production VPS actually runs
+> Alpine + nginx + OpenRC and serves on a bare IP — see
+> [`deploy/README.md`](deploy/README.md) for the as-built setup and config.
+
 ## Topology
 
 ```
