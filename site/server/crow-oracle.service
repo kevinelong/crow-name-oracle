@@ -1,0 +1,22 @@
+[Unit]
+Description=Crow Name Oracle backend
+After=network.target
+
+[Service]
+Type=simple
+User=crow
+WorkingDirectory=/opt/crow-name-oracle/server
+EnvironmentFile=/opt/crow-name-oracle/server/.env
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=3
+
+# light hardening — the service is internet-facing via Caddy
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/opt/crow-name-oracle/data
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Crow Name Oracle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<!-- compromise: optional NLP enhancement for the Scribe. If this fails to load, the Scribe falls back to heuristics. -->
+<script>window.__nlpReady=false;</script>
+<script src="https://cdn.jsdelivr.net/npm/compromise@14/builds/compromise.min.js"
+        onload="window.__nlpReady=(typeof nlp==='function')"
+        onerror="window.__nlpReady=false"></script>
+<style>
+  :root{
+    --ink:#0f1116;
+    --ink-2:#161a22;
+    --panel:#1b2029;
+    --panel-edge:#2b3340;
+    --gold:#c9a44c;
+    --gold-soft:#e3c878;
+    --gold-dim:#8a7234;
+    --bone:#ece3cf;
+    --bone-dim:#b8b09a;
+    --crow:#070809;
+    --blood:#7d2230;
+    --mist:#5a6573;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+
+  html,body{height:100%}
+
+  body{
+    font-family:'Cormorant Garamond',Georgia,serif;
+    background:
+      radial-gradient(120% 90% at 50% -10%, #1d2530 0%, var(--ink) 55%, #090a0d 100%);
+    color:var(--bone);
+    min-height:100vh;
+    line-height:1.5;
+    position:relative;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* grain + vignette atmosphere */
+  body::before{
+    content:"";
+    position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    mix-blend-mode:overlay;
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(120% 120% at 50% 40%, transparent 55%, rgba(0,0,0,.55) 100%);
+  }
+
+  .wrap{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:48px 22px 80px}
+
+  /* ---------- header ---------- */
+  header{text-align:center;margin-bottom:14px}
+  .crow-mark{width:78px;height:78px;margin:0 auto 10px;display:block;filter:drop-shadow(0 6px 14px rgba(0,0,0,.6))}
+  .crow-mark path{fill:var(--crow);stroke:var(--gold-dim);stroke-width:.6}
+  .eye{fill:var(--gold)!important;stroke:none!important}
+
+  h1{
+    font-family:'Cinzel',serif;
+    font-weight:800;
+    font-size:clamp(28px,6vw,46px);
+    letter-spacing:.14em;
+    color:var(--bone);
+    text-transform:uppercase;
+    line-height:1.05;
+  }
+  h1 .of{color:var(--gold);display:block;font-size:.42em;letter-spacing:.5em;margin-top:6px}
+  .subtitle{
+    font-style:italic;color:var(--bone-dim);font-size:18px;margin-top:14px;
+    max-width:540px;margin-left:auto;margin-right:auto;
+  }
+  .rule{
+    width:200px;height:1px;margin:22px auto 0;
+    background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);
+    position:relative;
+  }
+  .rule::after{
+    content:"❖";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    color:var(--gold);background:var(--ink);padding:0 12px;font-size:13px;
+  }
+
+  /* ---------- mode selector ---------- */
+  .modebar{
+    display:flex;gap:8px;justify-content:center;margin:30px auto 6px;flex-wrap:wrap;
+  }
+  .mode-btn{
+    font-family:'Cinzel',serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+    background:var(--panel);color:var(--bone-dim);
+    border:1px solid var(--panel-edge);border-radius:2px;
+    padding:11px 16px 9px;cursor:pointer;transition:all .2s ease;
+    display:flex;flex-direction:column;align-items:center;gap:3px;min-width:140px;
+  }
+  .mode-btn small{font-family:'Cormorant Garamond';font-style:italic;font-size:12.5px;letter-spacing:.02em;text-transform:none;color:var(--mist)}
+  .mode-btn:hover{border-color:var(--gold-dim);color:var(--bone)}
+  .mode-btn.active{
+    background:linear-gradient(180deg,#23303f,#1a232e);
+    border-color:var(--gold);color:var(--gold-soft);
+    box-shadow:0 0 0 1px rgba(201,164,76,.25),0 8px 22px rgba(0,0,0,.4);
+  }
+  .mode-btn.active small{color:var(--bone-dim)}
+  .mode-note{text-align:center;font-style:italic;color:var(--mist);font-size:14px;min-height:20px;margin-bottom:8px}
+
+  /* intensity dial */
+  .dial{display:flex;align-items:center;justify-content:center;gap:14px;margin:2px auto 0}
+  .dial-label{font-family:'Cinzel',serif;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dim)}
+  .dial-track{display:inline-flex;background:var(--panel);border:1px solid var(--panel-edge);border-radius:999px;padding:3px}
+  .dial-btn{font-family:'Cinzel',serif;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--bone-dim);background:transparent;border:none;border-radius:999px;padding:7px 18px 5px;cursor:pointer;transition:all .2s}
+  .dial-btn.active{background:linear-gradient(180deg,var(--gold-soft),var(--gold-dim));color:#1a140a;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+
+  /* ---------- form ---------- */
+  .scroll{
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.02), transparent 30%),
+      var(--ink-2);
+    border:1px solid var(--panel-edge);
+    border-radius:6px;
+    padding:30px 28px;
+    margin-top:18px;
+    box-shadow:0 20px 50px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.04);
+  }
+  .field{margin-bottom:20px}
+  .field:last-child{margin-bottom:0}
+  label{
+    display:block;font-family:'Cinzel',serif;font-size:11.5px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--gold);margin-bottom:7px;
+  }
+  label .hint{font-family:'Cormorant Garamond';text-transform:none;font-style:italic;letter-spacing:0;color:var(--mist);font-size:13.5px;margin-left:8px}
+  input{
+    width:100%;background:#0c0e13;border:1px solid var(--panel-edge);
+    border-radius:3px;color:var(--bone);font-family:'Cormorant Garamond',serif;
+    font-size:19px;padding:11px 14px;transition:border-color .2s,box-shadow .2s;
+  }
+  input::placeholder{color:#4d5667;font-style:italic}
+  input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,164,76,.12)}
+
+  .summon{
+    margin-top:26px;width:100%;cursor:pointer;
+    font-family:'Cinzel',serif;font-weight:600;font-size:15px;letter-spacing:.2em;
+    text-transform:uppercase;color:#1a140a;
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold) 60%,var(--gold-dim));
+    border:none;border-radius:3px;padding:16px;
+    box-shadow:0 8px 24px rgba(201,164,76,.22),inset 0 1px 0 rgba(255,255,255,.4);
+    transition:transform .12s ease,filter .2s ease;
+  }
+  .summon:hover{filter:brightness(1.08)}
+  .summon:active{transform:translateY(1px)}
+  .summon:disabled{opacity:.55;cursor:wait;filter:grayscale(.3)}
+
+  /* ---------- result / name tag ---------- */
+  .stage{margin-top:30px}
+  .silent{text-align:center;color:var(--mist);font-style:italic;font-size:17px;padding:10px}
+
+  .tag{
+    position:relative;background:
+      radial-gradient(120% 140% at 50% 0%, #20262f, #12161c);
+    border:1px solid var(--gold-dim);border-radius:8px;
+    padding:30px 26px 26px;text-align:center;
+    box-shadow:0 18px 44px rgba(0,0,0,.55), inset 0 0 0 1px rgba(201,164,76,.12);
+    animation:rise .5s cubic-bezier(.2,.8,.2,1) both;
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+  .tag .corner{position:absolute;width:18px;height:18px;border:1px solid var(--gold);opacity:.6}
+  .tag .c1{top:8px;left:8px;border-right:none;border-bottom:none}
+  .tag .c2{top:8px;right:8px;border-left:none;border-bottom:none}
+  .tag .c3{bottom:8px;left:8px;border-right:none;border-top:none}
+  .tag .c4{bottom:8px;right:8px;border-left:none;border-top:none}
+  .tag .banner{
+    font-family:'Cinzel',serif;font-size:11px;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:14px;
+  }
+  .tag .title{
+    font-family:'Cormorant Garamond',serif;font-weight:600;
+    font-size:clamp(24px,5vw,34px);line-height:1.18;color:var(--bone);
+    font-style:italic;
+  }
+  .tag .title .nm{font-style:normal;color:var(--gold-soft)}
+  .tag .src{margin-top:16px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-family:'Cinzel',serif}
+  .src.oracle{color:#7fb0c9}
+  .src.scribe{color:#b09a6a}
+  .src.fallback{color:#c97f7f}
+
+  .actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;justify-content:center}
+  .ghost{
+    font-family:'Cinzel',serif;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+    background:transparent;color:var(--bone-dim);border:1px solid var(--panel-edge);
+    border-radius:3px;padding:10px 16px;cursor:pointer;transition:all .2s;
+  }
+  .ghost:hover{border-color:var(--gold-dim);color:var(--gold-soft)}
+  .ghost.add:hover{border-color:var(--gold);color:var(--gold-soft);background:rgba(201,164,76,.08)}
+
+  /* ---------- roster ---------- */
+  .roster-head{display:flex;align-items:center;justify-content:space-between;margin:46px 0 6px}
+  .roster-head h2{font-family:'Cinzel',serif;font-weight:600;font-size:16px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+  .roster-head .count{color:var(--mist);font-style:italic;font-size:15px}
+  .roster-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin-top:14px}
+  .mini{
+    position:relative;background:radial-gradient(120% 140% at 50% 0%,#1c222b,#0f1318);
+    border:1px solid var(--gold-dim);border-radius:6px;padding:18px 16px 14px;text-align:center;
+  }
+  .mini .banner{font-family:'Cinzel',serif;font-size:8.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+  .mini .title{font-style:italic;font-size:19px;line-height:1.2;color:var(--bone)}
+  .mini .title .nm{font-style:normal;color:var(--gold-soft)}
+  .mini .del{position:absolute;top:6px;right:8px;background:none;border:none;color:var(--mist);cursor:pointer;font-size:16px;line-height:1;opacity:.6}
+  .mini .del:hover{color:var(--blood);opacity:1}
+  .roster-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+  .roster-empty{color:var(--mist);font-style:italic;text-align:center;padding:24px;border:1px dashed var(--panel-edge);border-radius:6px;margin-top:14px}
+
+  footer{text-align:center;margin-top:54px;color:var(--mist);font-style:italic;font-size:13.5px}
+
+  @media (max-width:520px){
+    .mode-btn{min-width:0;flex:1}
+    .scroll{padding:24px 18px}
+  }
+
+  /* ---------- print: name tag sheet ---------- */
+  @media print{
+    @page{margin:0.5in}
+    body{background:#fff;color:#000}
+    body::before,body::after{display:none}
+    .wrap>*:not(#printArea){display:none!important}
+    #printArea{display:block!important}
+    .print-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.25in}
+    .print-tag{
+      border:1.5px solid #1a1a1a;border-radius:8px;padding:0.32in 0.2in;
+      text-align:center;page-break-inside:avoid;height:2.3in;
+      display:flex;flex-direction:column;justify-content:center;
+    }
+    .print-tag .banner{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.26em;text-transform:uppercase;color:#7a5e16;margin-bottom:10px}
+    .print-tag .title{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;line-height:1.22;color:#111}
+    .print-tag .title .nm{font-style:normal;color:#7a5e16;font-weight:600}
+  }
+  #printArea{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <svg class="crow-mark" viewBox="0 0 100 100" aria-hidden="true">
+      <path d="M50 8c-4 0-7 3-8 7-9 1-17 6-22 14-3 5-4 11-3 17-5 2-9 6-11 11 4-2 8-3 12-2-3 4-5 9-5 15 3-4 7-7 11-9 1 7 5 13 11 17-2 1-4 3-5 6 4-1 8-1 12 1 3 2 6 2 9 1 4 1 8 0 11-2 6-3 11-8 13-15 5-1 9-4 12-8-3 1-6 1-9 0 5-4 8-10 9-16 2-7 0-15-4-21l4-3c-2-3-5-5-8-6 1-3 0-7-2-10-2-3-6-5-9-5l-1-1zm-9 22a3 3 0 110 6 3 3 0 010-6z"/>
+      <circle class="eye" cx="40" cy="31.5" r="2.4"/>
+    </svg>
+    <h1>The Crow Name<span class="of">Oracle</span></h1>
+    <p class="subtitle">Speak your name, your craft, your hunger, and the secret none would guess — and receive a title fit for the murder.</p>
+    <div class="rule"></div>
+  </header>
+
+  <!-- mode -->
+  <div class="modebar" id="modebar">
+    <button class="mode-btn active" data-mode="auto">Auto<small>oracle, then scribe</small></button>
+    <button class="mode-btn" data-mode="ai">Oracle<small>AI only</small></button>
+    <button class="mode-btn" data-mode="template">Scribe<small>template only</small></button>
+  </div>
+  <p class="mode-note" id="modeNote">Calls upon the Oracle (AI); should it fall silent, the Scribe answers.</p>
+
+  <!-- intensity dial -->
+  <div class="dial" id="dial">
+    <span class="dial-label">Crow intensity</span>
+    <div class="dial-track">
+      <button class="dial-btn active" data-int="light">Light</button>
+      <button class="dial-btn" data-int="heavy">Heavy</button>
+    </div>
+  </div>
+
+  <!-- form -->
+  <div class="scroll">
+    <div class="field">
+      <label>Name <span class="hint">the one your kin call you</span></label>
+      <input id="f-name" placeholder="Nina" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Hobbies & Pursuits <span class="hint">separate with commas</span></label>
+      <input id="f-hobby" placeholder="riding trains, sketching, late-night baking" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Favorite Foods <span class="hint">the clan you'd die for</span></label>
+      <input id="f-food" placeholder="rice pudding, dumplings" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>The Unexpected <span class="hint">something special no one would guess</span></label>
+      <input id="f-quirk" placeholder="can tame poodle hair, hums in elevators" autocomplete="off">
+    </div>
+    <button class="summon" id="summon">Divine a Name</button>
+  </div>
+
+  <!-- result -->
+  <div class="stage" id="stage">
+    <p class="silent">No name has yet been divined.</p>
+  </div>
+
+  <!-- roster -->
+  <div class="roster-head">
+    <h2>The Roster</h2>
+    <span class="count" id="count">0 named</span>
+  </div>
+  <div id="rosterBox">
+    <p class="roster-empty">Names you keep will gather here, ready to be printed as tags.</p>
+  </div>
+  <div class="roster-actions" id="rosterActions" style="display:none">
+    <button class="ghost" id="printBtn">Print Name Tags</button>
+    <button class="ghost" id="clearBtn">Remove My Names</button>
+  </div>
+
+  <footer>A murder of crows · tags that spark introductions</footer>
+
+  <!-- hidden print sheet -->
+  <div id="printArea"><div class="print-grid" id="printGrid"></div></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- state ----------
+  // Oracle endpoint. Default is the direct Anthropic API (works inside the
+  // Claude artifact sandbox). After deploying server/, change this to your
+  // proxy URL, e.g. "https://crows.example.com/api/oracle".
+  var ORACLE_ENDPOINT = "/api/oracle";
+
+  // Shared roster: everyone on this deployment accumulates into one room.
+  var ROSTER_BASE = "/api/roster/main";
+  // Stable per-browser id so you can remove only the names you added (no login).
+  var creatorId = (function(){
+    try {
+      var k = localStorage.getItem("crowCreatorId");
+      if(!k){ k = Date.now().toString(36) + Math.random().toString(36).slice(2,10); localStorage.setItem("crowCreatorId", k); }
+      return k;
+    } catch(e){ return "anon-" + Math.random().toString(36).slice(2,10); }
+  })();
+
+  var mode = "auto";
+  var intensity = "light";  // "light" | "heavy" crow flourish
+  var roster = [];          // {name, title}
+  var current = null;       // last divined {name, title, source}
+  var lastInputs = null;    // remember inputs for AI reroll variety
+  var rerollSeed = 0;
+
+  var MODE_NOTES = {
+    auto:     "Calls upon the Oracle (AI); should it fall silent, the Scribe answers.",
+    ai:       "Oracle only — pure AI. Fails loudly if unavailable (useful for testing).",
+    template: "Scribe only — handcrafted template. No AI is consulted (useful for testing)."
+  };
+
+  // ---------- template engine (the Scribe) ----------
+  // 1) corvid byname appended to the person's name
+  var BYNAME = ["Blackwing","Brightthief","Ashfeather","Quickbeak","Nightcaller",
+                "Tatterwing","Glintseeker","Shadowmolt","Stormpinion","Sootmantle",
+                "Gravewing","Cinderbeak","Hollowcaw","Bramblewing","Frostfeather","Ravenkin"];
+  // 2) rookery / murder framing for the food slot
+  var CLAN = [
+    "of the {f} rookery",
+    "of the {f}-hoarding murder",
+    "sworn to the {f} roost",
+    "born in the {f} nest",
+    "last crow of the {f} line",
+    "perched above the {f} feast"
+  ];
+  // 3) flight & crow deeds — OBJECT frames want a noun/gerund; CLAUSE frames want a verb phrase.
+  //    Each input is classified and routed to the family that stays grammatical.
+  var HOBBY_OBJECT = [
+    "circler of {x}",
+    "glider over {x}",
+    "haunter of {x}",
+    "watcher over {x}",
+    "scavenger of {x}",
+    "rider of {x} on tar-black wing",
+    "shadow cast over {x}"
+  ];
+  var HOBBY_CLAUSE_RAW = [           // {raw}=phrase kept verbatim (already finite: modal/adverb/3rd-person)
+    "who {raw}",
+    "who, it is said, {raw}",
+    "and {raw} besides"
+  ];
+  var HOBBY_CLAUSE_INF = [           // {inf}=infinitive phrase, {g}=gerund phrase (bare-verb inputs only)
+    "who will {inf}",
+    "known to {inf} from on high",
+    "ever given to {g}",
+    "who would {inf} for sport"
+  ];
+  var QUIRK_OBJECT = [
+    "thief of {x}",
+    "hoarder of {x}",
+    "omen of {x}",
+    "trickster of {x}",
+    "mimic of {x}",
+    "plunderer of {x}",
+    "keeper of {x}, brightest of trinkets"
+  ];
+  var QUIRK_CLAUSE_RAW = [
+    "who {raw}",
+    "who, it's whispered, {raw}",
+    "and {raw} when no one watches"
+  ];
+  var QUIRK_CLAUSE_INF = [
+    "known to {inf}",
+    "given to {g}",
+    "who will {inf} when none are looking"
+  ];
+  // corvid closers for HEAVY intensity (the face-remembering lore)
+  var CORVID_CLOSE = [
+    "remembers every face at this gathering",
+    "forgets no face once seen",
+    "leaves bright gifts for the kind",
+    "answers only to the caw",
+    "knows your name before you give it",
+    "trades shiny secrets for shinier ones",
+    "marks each new friend with a single glance"
+  ];
+  var LIGHT_STRUCT = [
+    "{name} {by} {clan}, {hd}, {qd}",
+    "{name} {by}, {hd}, {qd}, {clan}",
+    "{name} {by} {clan}, {qd}, {hd}"
+  ];
+  var HEAVY_STRUCT = [
+    "{name} {by} {clan}, {hd}, {qd} — and {face}",
+    "{name} {by}, {hd}, {qd}, {clan}, who {face}",
+    "{name} {by} {clan}, who {face}; {hd}, {qd}"
+  ];
+
+  function rng(){ // seedable for rerolls
+    rerollSeed = (rerollSeed * 9301 + 49297) % 233280;
+    return rerollSeed / 233280;
+  }
+  function pick(arr){ return arr[Math.floor(rng()*arr.length)]; }
+  function pickItem(csv, fallback){
+    var parts = (csv||"").split(",").map(function(s){return s.trim();}).filter(Boolean);
+    if(!parts.length) return fallback;
+    return parts[Math.floor(rng()*parts.length)];
+  }
+  function tidy(s){ return (s||"").trim().replace(/\.+$/,""); }
+
+  // ----- grammar helpers (compromise when present, heuristics otherwise) -----
+  function hasNlp(){ return window.__nlpReady && typeof window.nlp === "function"; }
+
+  var LEAD_MODAL = ["can","could","will","would","might","must","should","may","shall"];
+  var LEAD_PRON  = ["i","we","they","she","he","you","it"];
+  var LEAD_ADV   = ["always","never","secretly","often","once","sometimes","still","forever","occasionally"];
+
+  // strip conversational lead-ins so "I like to bake" -> "bake"
+  function strip(text){
+    return tidy(text).replace(
+      /^\s*(i\s+(really\s+)?(like|love|enjoy|prefer)\s+to\s+|i\s+(like|love|enjoy)\s+|my\s+hobby\s+is\s+|my\s+favou?rite\s+\w+\s+is\s+)/i,
+      "").trim();
+  }
+
+  // manual gerund of the first word (+ keep the rest of the phrase)
+  function toGerund(p){
+    var w = p.split(/\s+/), v = (w[0]||"").toLowerCase(), rest = w.slice(1).join(" "), g;
+    if(!v) return p;
+    if(/ing$/.test(v))                                   g = v;
+    else if(/ie$/.test(v))                               g = v.slice(0,-2) + "ying";        // lie -> lying
+    else if(/[^aeiou]e$/.test(v) && !/(ee|ye|oe)$/.test(v)) g = v.slice(0,-1) + "ing";       // bake -> baking
+    else if(/[aeiou][bcdfglmnpt]$/.test(v) && v.length<=4 && !/[aeiou][aeiou]/.test(v)) g = v + v.slice(-1) + "ing"; // run -> running
+    else                                                 g = v + "ing";
+    return (g + " " + rest).trim();
+  }
+  // infinitive of the first word (+ keep the rest); compromise if available
+  function toInfinitive(p){
+    var w = p.split(/\s+/), rest = w.slice(1).join(" "), head = w[0]||"";
+    if(hasNlp()){
+      var i = window.nlp(head).verbs().toInfinitive().text();
+      if(i) head = i;
+    }
+    return (head + " " + rest).trim();
+  }
+  // singularize a plural food noun for the attributive slot (compromise only; guarded)
+  function foodNoun(f){
+    if(!hasNlp()) return f;
+    if(!/s$/i.test(f) || /(ss|us|is)$/i.test(f)) return f;   // not a safe plural to cut
+    var d = window.nlp(f);
+    if(!d.has("#Plural")) return f;
+    return d.nouns().toSingular().text() || f;
+  }
+
+  // classify an input as a verb phrase (-> clause frame) or a thing (-> object frame).
+  // Single words always go to the forgiving object frames (keeps "rider of trains" intact);
+  // only multi-word verb phrases that read badly as objects are routed to clauses.
+  function isVerbPhrase(text){
+    var t = strip(text);
+    var w = t.split(/\s+/), first = (w[0]||"").toLowerCase();
+    if(LEAD_MODAL.indexOf(first)>=0 || LEAD_PRON.indexOf(first)>=0 || LEAD_ADV.indexOf(first)>=0) return true;
+    if(w.length < 2) return false;                 // single word -> object frame
+    if(hasNlp()) return window.nlp(t).has("#Verb") && window.nlp(first).has("#Verb");
+    return false; // heuristic default: treat as a thing (object frames are forgiving)
+  }
+
+  // build one deed phrase, routing the input to a grammatically-fitting frame
+  function buildDeed(text, objectFrames, rawFrames, infFrames){
+    var thing = strip(text);
+    if(!isVerbPhrase(text)) return pick(objectFrames).replace("{x}", thing);
+
+    var raw = thing;                                // keeps modal/adverb; meaning preserved
+    var first = (raw.split(/\s+/)[0]||"").toLowerCase();
+    // Only a clean bare-verb phrase (no modal, base verb, not already conjugated) gets the
+    // infinitive/gerund transforms — and only when compromise is available to do them well.
+    if(hasNlp() && !window.nlp(raw).has("#Modal") &&
+       window.nlp(first).has("#Verb") && !/(s|ed)$/i.test(first)){
+      return pick(infFrames)
+        .replace("{inf}", toInfinitive(raw))
+        .replace("{g}",   toGerund(raw));
+    }
+    return pick(rawFrames).replace("{raw}", raw);
+  }
+
+  function scribe(inp){
+    rerollSeed = (Date.now() + (rerollSeed||1)) % 233280; // fresh each call
+    var name  = tidy(inp.name) || "The Unnamed";
+    var food  = foodNoun(tidy(pickItem(inp.food,  "midnight crumb")));
+    var hobby = tidy(pickItem(inp.hobby, "wind and rooftops"));
+    var quirk = tidy(pickItem(inp.quirk, "secrets best kept"));
+    var by    = pick(BYNAME);
+    var clan  = pick(CLAN).replace("{f}", food);
+    var hd    = buildDeed(hobby, HOBBY_OBJECT, HOBBY_CLAUSE_RAW, HOBBY_CLAUSE_INF);
+    var qd    = buildDeed(quirk, QUIRK_OBJECT, QUIRK_CLAUSE_RAW, QUIRK_CLAUSE_INF);
+    var struct = (intensity === "heavy") ? pick(HEAVY_STRUCT) : pick(LIGHT_STRUCT);
+    var s = struct
+      .replace("{name}", name)
+      .replace("{by}", by)
+      .replace("{clan}", clan)
+      .replace("{hd}", hd)
+      .replace("{qd}", qd)
+      .replace("{face}", pick(CORVID_CLOSE));
+    return { name:name, byname:by, title:s, source:"scribe" };
+  }
+
+  // ---------- oracle engine (the AI) ----------
+  function buildPrompt(inp){
+    var heavy = (intensity === "heavy");
+    var clauses = heavy
+      ? "Write 4 clauses. The last must be a corvid flourish drawn from crow lore — e.g. that crows remember every face, leave bright gifts, hoard shiny things, or know a name before it's given."
+      : "Write 3 tight clauses. Keep it punchy.";
+    return "You are a master herald of a murder of crows, bestowing grand, mock-heroic 'crow names' for a party. "+
+      "Every guest IS a crow. The vibe: \"Nina Brightthief of the rice-pudding rookery, who rides the trains on tar-black wing, hoarder of poodle hair.\"\n\n"+
+      "Forge ONE crow name from these details:\n"+
+      "- Name: "+(tidy(inp.name)||"(unknown)")+"\n"+
+      "- Hobbies: "+(tidy(inp.hobby)||"(none given)")+"\n"+
+      "- Favorite foods: "+(tidy(inp.food)||"(none given)")+"\n"+
+      "- The unexpected: "+(tidy(inp.quirk)||"(none given)")+"\n\n"+
+      "Rules:\n"+
+      "1. Begin with the person's name, then give them a corvid byname (e.g. Blackwing, Brightthief, Ashfeather, Nightcaller, Quickbeak) — invent a fitting one.\n"+
+      "2. Frame the food as a crow collective: a 'rookery', 'murder', 'roost', or 'nest' — never 'clan' or 'house'.\n"+
+      "3. Reframe a hobby as a deed of flight or crow-cunning (circler/glider/swoops upon/scavenger of/rider on tar-black wing/watcher over).\n"+
+      "4. Cast the unexpected detail as a crow's plunder or strange mastery (thief of / hoarder of / omen of / trickster of / mimic of).\n"+
+      "5. "+clauses+" Witty, a little absurd, the kind of thing that sparks an introduction. Vary your verbs. Variation seed: "+(rerollSeed||1)+".\n\n"+
+      "Respond with ONLY the crow name itself — no quotes, no preamble, no explanation.";
+  }
+
+  function oracle(inp){
+    return fetch(ORACLE_ENDPOINT,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:1000,
+        messages:[{role:"user",content:buildPrompt(inp)}]
+      })
+    }).then(function(r){
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      return r.json();
+    }).then(function(data){
+      var text = (data.content||[])
+        .filter(function(b){return b.type==="text";})
+        .map(function(b){return b.text;})
+        .join(" ").trim();
+      text = text.replace(/^["'\u201c\u2018]+|["'\u201d\u2019.]+$/g,"").trim();
+      if(!text) throw new Error("empty");
+      return { name:tidy(inp.name)||"The Unnamed", title:text, source:"oracle" };
+    });
+  }
+
+  // ---------- name splitting for display ----------
+  function renderTitle(name, title){
+    // bold the leading name (and an immediately-following corvid byname) when present
+    if(name && title.toLowerCase().indexOf(name.toLowerCase())===0){
+      var rest = title.slice(name.length);
+      var m = rest.match(/^(\s+[A-Z][A-Za-z'\u2019-]+)/); // capture " Brightthief"
+      var lead = name + (m ? m[1] : "");
+      var tail = title.slice(lead.length);
+      return '<span class="nm">'+esc(lead)+'</span>'+esc(tail);
+    }
+    return esc(title);
+  }
+  function esc(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+  // ---------- rendering ----------
+  var stage = document.getElementById("stage");
+
+  function showResult(res){
+    current = res;
+    var label = res.source==="oracle" ? "Spoken by the Oracle"
+             : res.source==="fallback" ? "The Oracle was silent — the Scribe answered"
+             : "Penned by the Scribe";
+    var rerollLabel = res.source==="oracle" ? "Ask the Oracle Again" : "Reroll the Scribe";
+    stage.innerHTML =
+      '<div class="tag">'+
+        '<span class="corner c1"></span><span class="corner c2"></span>'+
+        '<span class="corner c3"></span><span class="corner c4"></span>'+
+        '<div class="banner">Known in the murder as</div>'+
+        '<div class="title">'+renderTitle(res.name,res.title)+'</div>'+
+        '<div class="src '+res.source+'">'+label+'</div>'+
+        '<div class="actions">'+
+          '<button class="ghost" id="reroll">'+rerollLabel+'</button>'+
+          '<button class="ghost add" id="keep">Keep in Roster</button>'+
+        '</div>'+
+      '</div>';
+    document.getElementById("reroll").onclick = function(){ run(true); };
+    document.getElementById("keep").onclick = function(){ keep(res); };
+  }
+
+  function showError(msg){
+    stage.innerHTML = '<div class="tag"><div class="banner" style="color:var(--blood)">The Oracle is silent</div>'+
+      '<div class="title" style="font-size:22px">'+esc(msg)+'</div>'+
+      '<div class="actions"><button class="ghost" id="retry">Try Again</button>'+
+      '<button class="ghost" id="useScribe">Summon the Scribe Instead</button></div></div>';
+    document.getElementById("retry").onclick = function(){ run(false); };
+    document.getElementById("useScribe").onclick = function(){
+      showResult(scribe(lastInputs));
+    };
+  }
+
+  function setBusy(b){
+    var btn=document.getElementById("summon");
+    btn.disabled=b; btn.textContent = b ? "Consulting…" : "Divine a Name";
+  }
+
+  // ---------- main flow ----------
+  function gather(){
+    return {
+      name:  document.getElementById("f-name").value,
+      hobby: document.getElementById("f-hobby").value,
+      food:  document.getElementById("f-food").value,
+      quirk: document.getElementById("f-quirk").value
+    };
+  }
+
+  function run(isReroll){
+    var inp = isReroll && lastInputs ? lastInputs : gather();
+    lastInputs = inp;
+    rerollSeed = (rerollSeed + Math.floor(Math.random()*9999) + 1) % 233280;
+
+    if(!inp.name && !inp.hobby && !inp.food && !inp.quirk){
+      stage.innerHTML = '<p class="silent">Whisper at least a name before summoning a title.</p>';
+      return;
+    }
+
+    if(mode==="template"){
+      showResult(scribe(inp));
+      return;
+    }
+
+    // ai or auto -> consult oracle
+    setBusy(true);
+    oracle(inp).then(function(res){
+      setBusy(false);
+      showResult(res);
+    }).catch(function(err){
+      setBusy(false);
+      if(mode==="auto"){
+        var res = scribe(inp);
+        res.source = "fallback";
+        showResult(res);
+      }else{
+        showError("The Oracle could not be reached ("+(err.message||"unknown")+").");
+      }
+    });
+  }
+
+  // ---------- roster (shared, server-backed) ----------
+  var rosterBox = document.getElementById("rosterBox");
+
+  // Pull the whole room from the server and re-render. Source of truth.
+  function loadRoster(){
+    return fetch(ROSTER_BASE)
+      .then(function(r){ return r.json(); })
+      .then(function(data){ roster = (data && data.entries) || []; renderRoster(); })
+      .catch(function(){ /* offline: leave the current view in place */ });
+  }
+
+  // Explicit "Keep" persists to the shared room (we do NOT auto-save rerolls).
+  function keep(res){
+    var btn = document.getElementById("keep");
+    if(btn){ btn.disabled = true; btn.textContent = "Kept ✓"; }
+    fetch(ROSTER_BASE, {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ name:res.name, title:res.title, creator:creatorId })
+    })
+      .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
+      .then(function(){ return loadRoster(); })
+      .catch(function(){
+        // offline fallback: show it locally so the click isn't lost
+        roster.push({ id:"local-"+Date.now(), name:res.name, title:res.title, creator:creatorId });
+        renderRoster();
+      });
+  }
+
+  function removeEntry(id){
+    fetch(ROSTER_BASE + "/" + encodeURIComponent(id) + "?creator=" + encodeURIComponent(creatorId), { method:"DELETE" })
+      .then(function(){ return loadRoster(); })
+      .catch(function(){});
+  }
+
+  function renderRoster(){
+    var mineCount = roster.filter(function(r){ return r.creator === creatorId; }).length;
+    document.getElementById("count").textContent =
+      roster.length + " named" + (mineCount ? " · " + mineCount + " yours" : "");
+    if(!roster.length){
+      rosterBox.innerHTML='<p class="roster-empty">Kept names gather here from everyone in the room, ready to be printed as tags.</p>';
+      document.getElementById("rosterActions").style.display="none";
+      return;
+    }
+    document.getElementById("rosterActions").style.display="flex";
+    var html='<div class="roster-grid">';
+    roster.forEach(function(r){
+      var mine = r.creator === creatorId;
+      html+='<div class="mini">'+
+        (mine ? '<button class="del" data-id="'+r.id+'" title="remove">×</button>' : '')+
+        '<div class="banner">Known as</div>'+
+        '<div class="title">'+renderTitle(r.name,r.title)+'</div></div>';
+    });
+    html+='</div>';
+    rosterBox.innerHTML=html;
+    Array.prototype.forEach.call(rosterBox.querySelectorAll(".del"),function(b){
+      b.onclick=function(){ removeEntry(b.dataset.id); };
+    });
+  }
+
+  function buildPrintSheet(){
+    var grid=document.getElementById("printGrid");
+    grid.innerHTML = roster.map(function(r){
+      return '<div class="print-tag"><div class="banner">Known in the murder as</div>'+
+        '<div class="title">'+renderTitle(r.name,r.title)+'</div></div>';
+    }).join("");
+  }
+
+  // ---------- wiring ----------
+  Array.prototype.forEach.call(document.querySelectorAll(".mode-btn"),function(btn){
+    btn.onclick=function(){
+      document.querySelectorAll(".mode-btn").forEach(function(b){b.classList.remove("active");});
+      btn.classList.add("active");
+      mode=btn.dataset.mode;
+      document.getElementById("modeNote").textContent=MODE_NOTES[mode];
+    };
+  });
+  document.getElementById("summon").onclick=function(){ run(false); };
+  Array.prototype.forEach.call(document.querySelectorAll(".dial-btn"),function(btn){
+    btn.onclick=function(){
+      document.querySelectorAll(".dial-btn").forEach(function(b){b.classList.remove("active");});
+      btn.classList.add("active");
+      intensity=btn.dataset.int;
+    };
+  });
+  document.querySelectorAll("input").forEach(function(i){
+    i.addEventListener("keydown",function(e){ if(e.key==="Enter") run(false); });
+  });
+  document.getElementById("printBtn").onclick=function(){
+    if(!roster.length) return;
+    buildPrintSheet();
+    window.print();
+  };
+  document.getElementById("clearBtn").onclick=function(){
+    var mine = roster.filter(function(r){ return r.creator === creatorId; });
+    if(!mine.length){ return; }
+    if(confirm("Remove the "+mine.length+" name"+(mine.length===1?"":"s")+" you added? (Other people's names stay.)")){
+      Promise.all(mine.map(function(r){
+        return fetch(ROSTER_BASE + "/" + encodeURIComponent(r.id) + "?creator=" + encodeURIComponent(creatorId), { method:"DELETE" });
+      })).then(function(){ loadRoster(); }).catch(function(){ loadRoster(); });
+    }
+  };
+
+  loadRoster();
+  // Keep the shared wall fresh as others add names.
+  setInterval(loadRoster, 20000);
+})();
+</script>
+</body>
+</html>

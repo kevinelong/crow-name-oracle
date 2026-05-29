@@ -1,0 +1,30 @@
+# Replace crows.example.com with your actual domain.
+# Caddy auto-provisions a Let's Encrypt cert on first request.
+
+crows.example.com {
+    encode gzip zstd
+
+    # API → Node backend on localhost
+    handle /api/* {
+        header Cache-Control "no-store"
+        reverse_proxy 127.0.0.1:8787
+    }
+
+    handle /healthz {
+        reverse_proxy 127.0.0.1:8787
+    }
+
+    # Everything else → static files from the repo root
+    handle {
+        root * /opt/crow-name-oracle
+        # never expose source-control, server code, or roster data
+        @blocked {
+            path /.git* /server* /node_modules* /data* /prompts*
+            path *.md *.toml *.service /LICENSE
+        }
+        respond @blocked 404
+        try_files {path} /index.html
+        file_server
+        header Cache-Control "public, max-age=300"
+    }
+}

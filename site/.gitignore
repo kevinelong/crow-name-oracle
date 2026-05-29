@@ -1,0 +1,9 @@
+.DS_Store
+node_modules/
+*.log
+
+# never commit secrets
+server/.env
+
+# runtime data (roster lives here on the VPS)
+data/
