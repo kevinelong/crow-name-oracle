@@ -93,6 +93,41 @@ Certs are issued per real domain (`certbot --nginx`); the renewal cron
 nginx is up on port 80. The bare-IP Oracle is intentionally **HTTP only** —
 there is no certificate for a raw IP address.
 
+## Serving a real domain over HTTPS (crowparty.org)
+
+The bare-IP `default_server` is HTTP-only. To serve the Oracle on a real
+domain with TLS, add a Host-matched vhost and let certbot provision the cert.
+[`crowparty.org.conf`](crowparty.org.conf) is the live example.
+
+```sh
+# 0. DNS first: point crowparty.org AND www.crowparty.org A records at the VPS.
+#    certbot's HTTP-01 challenge fails if DNS doesn't resolve here.
+
+# 1. HTTP vhost (same root + /api proxy as the default_server, Host-matched).
+#    Keep /.well-known reachable — use  location ~ /\.(?!well-known) { return 404; }
+doas cp crowparty.org.conf /etc/nginx/http.d/crowparty.org.conf   # (the HTTP-only form, pre-certbot)
+doas nginx -t && doas rc-service nginx restart
+
+# 2. Provision the cert + auto-add the 443 block and HTTP->HTTPS redirect.
+doas certbot --nginx -d crowparty.org -d www.crowparty.org \
+     --non-interactive --agree-tos -m you@example.com --no-eff-email --redirect
+
+# 3. CORS: the backend rejects cross-origin POSTs, and the page is now served
+#    from https://crowparty.org, so add those origins or the Oracle/roster break:
+#      ALLOWED_ORIGINS=https://crowparty.org,https://www.crowparty.org,http://<ip>
+doas rc-service crow-oracle restart
+```
+
+**HSTS:** the 443 block sends `Strict-Transport-Security: max-age=31536000;
+includeSubDomains`. nginx does **not** inherit `add_header` into a `location`
+that has its own `add_header`, so the directive is repeated inside `location /`
+and `location /api/` (which set `Cache-Control`) — otherwise it silently
+vanishes from the main responses. `includeSubDomains` commits every future
+subdomain to HTTPS; `preload` is intentionally omitted.
+
+Routing stays clean: `crowparty.org` is Host-matched to this vhost, the bare IP
+still hits `default_server`, and the other domains are untouched.
+
 ## Operations
 
 ```sh
