@@ -100,6 +100,9 @@ app.post("/api/oracle", oracleLimiter, async (req, res) => {
 app.get("/api/roster/:room", (req, res) => {
   const room = sanitizeRoom(req.params.room);
   if (!room) return res.status(400).json({ error: "bad room" });
+  // Roster is shared and changes constantly — never let a browser serve a
+  // stale (e.g. empty) cached copy to a second visitor.
+  res.set("Cache-Control", "no-store");
   res.json({ room, entries: loadAll()[room] || [] });
 });
 
