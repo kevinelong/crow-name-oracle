@@ -781,5 +781,14 @@
   setInterval(loadRoster, 20000);
 })();
 </script>
+<style>
+  #qr-badge{display:none}
+  @media (hover:hover) and (pointer:fine){
+    #qr-badge{display:flex;flex-direction:column;align-items:center;gap:3px;position:fixed;right:12px;bottom:12px;z-index:200;background:rgba(5,5,5,.72);border:1px solid rgba(200,169,110,.35);border-radius:6px;padding:7px;opacity:.5;transition:opacity .2s;font:9px monospace;color:rgba(200,169,110,.85);letter-spacing:.06em;text-align:center}
+    #qr-badge:hover{opacity:1}
+  }
+  #qr-badge img{width:78px;height:78px;image-rendering:pixelated;display:block;background:#fff;border-radius:3px}
+</style>
+<div id="qr-badge"><img alt="QR to crowparty.org" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJEAAACRAQMAAAD5FshgAAAABlBMVEUAAAD///+l2Z/dAAAAAnRSTlP//8i138cAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAEbSURBVEiJ1ZUxDoMwDEU/YsiYI+QmcDEkKvVi5CYcISMDivudtCoVqz3UgxVeBmP724HcDX/JNgAhyyOFXHgcPFhmpFCxiuSizoUVpCBlwTHQBUcmJ47Zl9X43Fk/N6b1k/b5W1ND1nVQlrs27FizXMa9/cFF44Zsi5RyxSiYv7kZM2FGUuOZjik+gNmDVSw8MTdM6Anas01HsgLpQJT90zdb1qSsReTMjO/6WbOm4tpDsoizB9siPRgXUzw/GjdmWTNSrfFWF4ALk6dKYGVwNqprzZo1Y4/09nRibb9QDLoAlnTZYYasv1ucy66DwYXpvmdaaPVzZDqczTkyvinanq+ejZnWT0NykSH5sPe7tbZx2S/aMGR3+0f2AtEq4Ps3ai7nAAAAAElFTkSuQmCC"><span>scan to open<br>on your phone</span></div>
 </body>
 </html>
